@@ -1,9 +1,165 @@
-import React from 'react'
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import OAuth from "../Components/OAuth";
+// import "./Signin.css";
+import { FcGoogle } from "react-icons/fc";
+// import OAuth from '../Components/OAuth';
 
-function SignUp() {
+const colors = {
+  primary: "#060606",
+  background: "#f5f5f5",
+  disabled: "#D9d9d9",
+};
+
+function Signin() {
+  const [formData, setFormData] = useState({});
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  // const { loading, error } = useSelector((state) => state.user);
+  const navigate = useNavigate();
+  // const dispatch = useDispatch();
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.id]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      console.log(data);
+      if (data.success === false) {
+        setLoading(false);
+        setError(data.message);
+        return;
+      }
+      setLoading(false);
+      setError(null);
+      navigate("/signin");
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
   return (
-    <div>SignUp</div>
-  )
+    <div className="w-full max-h-screen flex items-start ">
+      <div className="relative w-1/2 h-full flex flex-col">
+        <div className="absolute top-[25%] left-[10%] flex flex-col">
+          <h1 className="text-4xl font-bold my-4 ml-4 text-white">
+          Your Event, Your Way, Our Rentals
+          </h1>
+        </div>
+        <img
+          src="https://images.pexels.com/photos/4577410/pexels-photo-4577410.jpeg?auto=compress&cs=tinysrgb&w=600"
+          alt=""
+          className="w-full max-h-[930px]  object-cover"
+        />
+      </div>
+
+      <div className="w-1/2 h-full  bg-[#f5f5f5] flex flex-col p-20 justify-between items-center">
+        <h1 className="text-3xl max-w-[500px] mx-auto w-full text-[#060606] font-bold mr-auto mb-5">
+          RentSpark
+        </h1>
+
+        <div className="w-full flex flex-col max-w-[500px] ">
+          <div className="w-full flex flex-col mb-2">
+            <h3 className="text-2xl text-[#060606] font-semibold mb-4">
+              Register Yourself 
+            </h3>
+            <p className="text-normal text-sm mb-2">
+              Welcome! Please enter your details.
+            </p>
+          </div>
+          <form className="w-full flex flex-col" onSubmit={handleSubmit}>
+
+          <input
+              type="text"
+              placeholder="Name"
+              className="w-full text-black py-2 my-2 bg-transparent border-b border-black outline-none focus:outline-none"
+              id="username"
+              onChange={handleChange}
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              className="w-full text-black py-2 my-2 bg-transparent border-b border-black outline-none focus:outline-none"
+              id="email"
+              onChange={handleChange}
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              className="w-full text-black py-2 my-2 bg-transparent border-b border-black outline-none focus:outline-none"
+              id="password"
+              onChange={handleChange}
+            />
+          
+            {/* <div className="w--full flex  item-center justify-between">
+              <div className="w-full flex items-center">
+                <input type="checkbox" className="w-4 h-4 mr-2" />
+                <p className="text-sm">Remember me</p>
+              </div>
+
+              <p className="text-sm cursor-pointer underline underline-offset-2">
+                Forgot Password?
+              </p>
+            </div> */}
+            <div className="w-full flex flex-col my-4">
+              <button
+                disabled={loading}
+                className="w-full text-[#fff] bg-[#060606] p-4 text-center items-center justify-center rounded-md "
+                type="submit"
+              >
+                {loading ? "Loading..." : "Register"}
+                
+              </button>
+              <Link to={"/signin"}>
+              <button className="w-full text-[#060606] my-2 bg-[#fff] border border-black font-semibold p-4 text-center items-center justify-center rounded-md">
+                {" "}
+                Log in{" "}
+              </button>
+              </Link>
+            </div>
+            <div className="w-full flex items-center justify-center relative py-2">
+              <div className="w-full h-[1px] bg-black/30"></div>
+              <p className="text-lg absolute m-1 font-normal text-black/80 bg-white">
+                or
+              </p>
+              {/* <div className='w-full h-[1px] bg-black'></div> */}
+            </div>
+            <button className="w-full text-[#060606] my-2 font-semibold bg-white border-2 border-blac/40 p-4 text-center flex items-center justify-center rounded-md">
+              <FcGoogle className="h-6 w-6 mr-2" /> <OAuth />
+            </button>
+          </form>
+        </div>
+
+        <div className="w-full flex items-center justify-center">
+          <p className="text-sm font-normal text-[#060606]">
+            {" "}
+            Already have an account?{" "}
+            <Link
+              className="text-blue-800 text-xs sm:text-sm font-bold hover:underline"
+              to={"/signin"}
+            >
+              Sign in
+            </Link>
+          </p>
+        </div>
+        {error && <p className="error">{error}</p>}
+      </div>
+    </div>
+  );
 }
 
-export default SignUp
+export default Signin;
